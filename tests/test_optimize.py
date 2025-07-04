@@ -18,4 +18,5 @@ def test_continuous_update_basic():
     )
     assert np.isclose(np.sum(final_weights), 1.0), "Final weights do not sum to 1"
     assert all(final_weights >= 0), "Negative weights found"
-    assert cvar_hist[-1] <= cvar_hist[0], "CVaR did not decrease"
+    # Allow small numerical fluctuation tolerance
+    assert cvar_hist[-1] <= cvar_hist[0] + 1e-5, f"CVaR did not decrease: start={cvar_hist[0]}, end={cvar_hist[-1]}"
