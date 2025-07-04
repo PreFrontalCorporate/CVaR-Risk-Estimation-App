@@ -1,0 +1,6 @@
+# app/config.py
+
+ALPHA = 0.05
+ETA = 0.01
+SECTOR_CAP = 0.3
+PARAMETRIC_DEFAULT = False

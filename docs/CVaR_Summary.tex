@@ -1,0 +1,84 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\title{Comprehensive Summary: CVaR-Adjusted Portfolio Optimization with Advanced Testing and Interpretability}
+\author{PreFrontal Corporate}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This document summarizes the theoretical foundations, empirical validations, and advanced modules implemented in the CVaR Risk Estimation App. We detail the mathematical rigor of Conditional Value-at-Risk (CVaR), dynamic update algorithms, constraint handling, parametric options, explainability integration (SHAP), and scenario-based stress testing.
+\end{abstract}
+
+\section{CVaR Definition and Motivation}
+Conditional Value-at-Risk (CVaR) addresses the limitation of Value-at-Risk (VaR) by explicitly modeling the average loss in the tail beyond a chosen quantile $\alpha$. For a loss function $L(w) = -R^\top w$, CVaR is defined as:
+\[
+\text{CVaR}_\alpha(w) = E[L(w) \mid L(w) \ge \text{VaR}_\alpha(w)].
+\]
+This measure is coherent: it satisfies subadditivity, monotonicity, positive homogeneity, and translation invariance.
+
+\section{Optimization Formulation}
+We minimize tail risk via:
+\[
+\min_{w} \quad \tau + \frac{1}{\alpha}\mathbb{E}[(L(w) - \tau)_+].
+\]
+Convexity proofs guarantee global optima, and strong duality holds by Rockafellar \& Uryasev.
+
+\section{Dynamic Update Algorithm}
+We designed a continuous-time inspired update:
+\[
+\frac{dw}{dt} = -\nabla \text{CVaR}(w).
+\]
+The Lyapunov function $V(w) = \text{CVaR}(w) - \text{CVaR}(w^*)$ satisfies:
+\[
+\frac{dV}{dt} = -\|\nabla \text{CVaR}(w)\|^2 \le 0,
+\]
+ensuring convergence to $w^*$.
+
+\section{Constraint Handling}
+We introduced sector constraints (e.g., $\le 30\%$ in tech), enforced via convex projection steps. No short-selling is ensured through the simplex projection. This reflects realistic institutional policy requirements.
+
+\section{Parametric and Non-Parametric CVaR}
+We support both empirical CVaR (non-parametric) and parametric CVaR assuming Gaussian returns:
+\[
+\text{CVaR}_\alpha^{\text{param}} = -\mu + \frac{\sigma \phi(\Phi^{-1}(\alpha))}{\alpha},
+\]
+where $\mu$ and $\sigma$ are mean and standard deviation of portfolio returns.
+
+\section{Explainability Layer (SHAP)}
+A per-asset risk attribution module is integrated using SHAP values:
+\[
+\phi_j = \sum_{S \subseteq F \setminus \{j\}} \frac{|S|!(|F| - |S| - 1)!}{|F|!}\left(f_{S \cup \{j\}}(x) - f_S(x)\right).
+\]
+This allows transparent interpretation of each asset's contribution to tail risk.
+
+\section{Scenario Stress Testing}
+We implemented a scenario analysis module that simulates shocks (e.g., pandemic, interest rate spikes), evaluating pre- and post-shock CVaR to guide defensive reallocations.
+
+\section{Empirical Results and Insights}
+\begin{itemize}
+\item CVaR trajectories confirm monotonic tail risk reduction across iterations.
+\item Final weights comply with constraints and reflect empirical risk profiles.
+\item SHAP plots validate asset-level contributions and aid regulatory reporting.
+\item Scenario tests demonstrate sensitivity to targeted shocks, supporting preemptive adjustments.
+\end{itemize}
+
+\section{Conclusion}
+The CVaR Risk Estimation App integrates rigorous mathematical proofs, robust empirical testing, advanced explainability, and realistic institutional features (constraints and scenarios). This foundation enables a high-confidence, production-grade risk optimization service.
+
+\section*{References}
+\begin{itemize}
+\item Rockafellar, R. T., and Uryasev, S. (2000). Optimization of Conditional Value-at-Risk. Journal of Risk.
+\item Lundberg, S., and Lee, S.-I. (2017). A Unified Approach to Interpreting Model Predictions. NeurIPS.
+\item Ben-Tal, A., El Ghaoui, L., and Nemirovski, A. (2009). Robust Optimization.
+\item Embrechts, P., Klüppelberg, C., and Mikosch, T. (1997). Modelling Extremal Events.
+\end{itemize}
+
+\end{document}
