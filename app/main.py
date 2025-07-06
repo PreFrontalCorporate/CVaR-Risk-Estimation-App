@@ -1,16 +1,16 @@
-# app/main.py
+# cvar_app/app/main.py
 
-from flask import Flask, request, jsonify
+from flask import request, jsonify
 import numpy as np
+
+from . import cvar_bp  # Import blueprint instead of creating app directly
 
 from .optimize import continuous_cvar_update
 from .explain import explain_asset_contributions
 from .scenario import scenario_analysis
 from .config import ALPHA
 
-app = Flask(__name__)
-
-@app.route("/optimize", methods=["POST"])
+@cvar_bp.route("/optimize", methods=["POST"])
 def optimize():
     data = request.json
     weights = np.array(data["weights"])
@@ -30,7 +30,7 @@ def optimize():
         "cvar_history": [float(val) for val in cvar_hist]
     })
 
-@app.route("/explain", methods=["POST"])
+@cvar_bp.route("/explain", methods=["POST"])
 def explain():
     data = request.json
     weights = np.array(data["weights"])
@@ -38,7 +38,7 @@ def explain():
     plot_path = explain_asset_contributions(weights, returns)
     return jsonify({"shap_summary_plot": plot_path})
 
-@app.route("/scenario", methods=["POST"])
+@cvar_bp.route("/scenario", methods=["POST"])
 def scenario():
     data = request.json
     weights = np.array(data["weights"])
@@ -52,10 +52,6 @@ def scenario():
         "cvar_after": float(cvar_after)
     })
 
-@app.route("/history", methods=["GET"])
+@cvar_bp.route("/history", methods=["GET"])
 def history():
-    # Placeholder endpoint
     return jsonify({"message": "History module will be implemented in future iterations."})
-
-if __name__ == "__main__":
-    app.run(debug=True)
